@@ -1,0 +1,68 @@
+import RPi.GPIO as GPIO
+import time
+ 
+#GPIO Mode (BOARD / BCM)
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+ 
+#set GPIO Pins
+GPIO_TRIGGER = 18
+GPIO_ECHO = 24
+LED = 2
+X = 200
+    
+ 
+#set GPIO direction (IN / OUT)
+GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
+GPIO.setup(GPIO_ECHO, GPIO.IN)
+GPIO.setup(LED, GPIO.OUT)
+pwmLED = GPIO.PWM(LED, X)
+
+GPIO.output(GPIO_TRIGGER , False)
+pwmLED.start(50)
+time.sleep(2)
+ 
+def distance():
+   
+    GPIO.output(GPIO_TRIGGER, True)
+ 
+    
+    time.sleep(0.00001)
+    GPIO.output(GPIO_TRIGGER, False)
+ 
+    StartTime = time.time()
+    StopTime = time.time()
+ 
+
+    while GPIO.input(GPIO_ECHO) == 0:
+        StartTime = time.time()
+ 
+    
+    while GPIO.input(GPIO_ECHO) == 1:
+        StopTime = time.time()
+ 
+   
+    TimeElapsed = StopTime - StartTime
+    
+    distance = (TimeElapsed * 34300) / 2
+ 
+    return distance
+
+    
+    
+      
+    
+try:
+    
+    while 1:
+        dist = distance()
+        
+        pwmLED.ChangeDutyCycle(70 - distance())
+        print ("Measured Distance = %.1f cm" % distance())
+        time.sleep(0.5)
+            
+   
+   
+            
+except:
+    print("Measurement stopped")
